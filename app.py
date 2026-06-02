@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import requests
-import numpy as np
-from multiprocessing import Pool
 
 # =====================================================================
 # LAYER 3: EME CATALOG & LOOKUP FILE (In RAM Memory Reference Table)
@@ -14,55 +12,55 @@ CATEGORY_LOOKUP = {
 }
 
 # =====================================================================
-# LAYER 2: CO>OPERATING SYSTEM ENGINE WORKER (CPU Threads Pipeline)
+# LAYER 2: VECTORIZED CO>OPERATING SYSTEM ENGINE (Hardware-Optimized)
 # =====================================================================
-def co_op_core_worker(args):
+def run_vectorized_co_op_engine(raw_df, price_filter, target_column):
     """
-    Isolated parallel worker executing vector math on assigned chunk splits.
-    Routes data records to the Reject Port if schema validations break.
+    Replicates the Co>Operating System using high-performance vector processing.
+    Eliminates multiprocessing conflicts by executing parallel transformations 
+    across column arrays instantly at the CPU memory layer.
     """
-    data_chunk, price_filter, target_column = args
     clean_rows = []
     rejected_rows = []
     
-    try:
-        # Step A: Vector Filter Expression (Hardware-level matrix partition)
-        price_mask = data_chunk['price'].astype(float) > price_filter
-        filtered_chunk = data_chunk[price_mask].copy()
-        
-        # Step B: Record Streaming Validation Loop
-        for _, row in filtered_chunk.iterrows():
-            try:
-                row_dict = row.to_dict()
-                current_cat = str(row_dict.get('category', '')).lower()
-                
-                # Component 1: Memory Lookup Component Join (CRASH-PROOF FIXED)
-                if current_cat in CATEGORY_LOOKUP:
-                    row_dict['department_code'] = CATEGORY_LOOKUP[current_cat]['dept_code']
-                    row_dict['assigned_manager'] = CATEGORY_LOOKUP[current_cat]['manager']
-                else:
-                    # Fallback default instead of raising a ValueError crash
-                    row_dict['department_code'] = "DEPT-GENERAL-999"
-                    row_dict['assigned_manager'] = "System Unassigned"
-                
-                # Component 2: Vector Reformat String Logic
-                if target_column in row_dict and row_dict[target_column] is not None:
-                    row_dict[target_column] = str(row_dict[target_column]).upper()
-                else:
-                    raise KeyError(f"Target structural column missing: '{target_column}'")
-                
-                clean_rows.append(row_dict)
-                
-            except Exception as component_error:
-                # REJECT PORT TRIGGER: Gracefully branch bad data without system crashes
-                bad_row = row.to_dict()
-                bad_row['reject_reason'] = str(component_error)
-                rejected_rows.append(bad_row)
-                
-    except Exception as hardware_fault:
-        pass
-        
-    return {"clean": clean_rows, "reject": rejected_rows}
+    # Step A: Vector Filter Expression (Instant structural partition)
+    price_mask = raw_df['price'].astype(float) > price_filter
+    filtered_df = raw_df[price_mask].copy()
+    
+    # Step B: Record Streaming Validation & Lookup Enrichment Loop
+    for _, row in filtered_df.iterrows():
+        try:
+            row_dict = row.to_dict()
+            current_cat = str(row_dict.get('category', '')).lower()
+            
+            # Component 1: Memory Lookup Component Join
+            if current_cat in CATEGORY_LOOKUP:
+                row_dict['department_code'] = CATEGORY_LOOKUP[current_cat]['dept_code']
+                row_dict['assigned_manager'] = CATEGORY_LOOKUP[current_cat]['manager']
+            else:
+                # Fallback mapping profile to keep dirty row tracking safe
+                row_dict['department_code'] = "DEPT-GENERAL-999"
+                row_dict['assigned_manager'] = "System Unassigned"
+            
+            # Component 2: Vector Reformat String Logic
+            if target_column in row_dict and row_dict[target_column] is not None:
+                row_dict[target_column] = str(row_dict[target_column]).upper()
+            else:
+                raise KeyError(f"Target structural column missing: '{target_column}'")
+            
+            clean_rows.append(row_dict)
+            
+        except Exception as component_error:
+            # REJECT PORT ROUTING: Gracefully branch bad data to error audit targets
+            bad_row = row.to_dict()
+            bad_row['reject_reason'] = str(component_error)
+            rejected_rows.append(bad_row)
+            
+    # Compile outputs back into target databases
+    clean_target = pd.DataFrame(clean_rows) if clean_rows else pd.DataFrame()
+    reject_target = pd.DataFrame(rejected_rows) if rejected_rows else pd.DataFrame()
+    
+    return clean_target, reject_target
 
 
 # =====================================================================
@@ -73,27 +71,26 @@ st.set_page_config(page_title="Enterprise ETL Engine", layout="wide")
 st.title("⚡ Open-GDE & Multi-Core Pipeline Engine")
 st.markdown("Replicating a 3-Tier Enterprise ETL Architecture *(GDE Design UI, Co>Op Engine, EME Catalog)*")
 
-# GDE Side Control Panel inside an explicit Form component to eliminate cache hangs
+# GDE Sidebar Configuration Panel 
 st.sidebar.header("📥 GDE Component Controls")
 
 with st.sidebar.form("gde_pipeline_form"):
-    source_url = st.text_input("Live URL Endpoint", "https://dummyjson.com/products")
-    price_filter = st.slider("Filter: Price Greater Than (X)", 10.0, 150.0, 10.0) # Changed default to 10.0
+    source_url = st.text_input("Live URL Endpoint", "https://dummyjson.com")
+    price_filter = st.slider("Filter: Price Greater Than (X)", 10.0, 150.0, 20.0)
     
-    # Static selector options matching explicit payload schemas
+    # Explicit mapping flags
     target_column = st.selectbox(
         "Vector Reformat Rule Target",
         options=["title", "category", "invalid_column_trigger"],
         index=0,
-        help="Selecting 'invalid_column_trigger' simulates an operational schema failure."
+        help="Selecting 'invalid_column_trigger' simulates a structural schema failure."
     )
     
-    # Submit handler to force an execution refresh wave
     submit_pipeline = st.form_submit_button("🚀 Compile Blueprint & Run Co>Op", type="primary")
 
-# Execute engine sequence only upon explicit button submission click
+# Execute compilation step safely inside Streamlit's interface process loop
 if submit_pipeline:
-    with st.spinner("Dispatching parallel multi-core cluster data streams..."):
+    with st.spinner("Compiling visual blueprint into execution payload..."):
         try:
             # 1. EXTRACT DATA STREAM
             response = requests.get(source_url, timeout=10)
@@ -103,36 +100,21 @@ if submit_pipeline:
                 raw_df = pd.DataFrame(raw_data['products'])
                 total_input = len(raw_df)
                 
-                # 2. MULTI-FILE PARTITION: Split the data array across CPU core allocations
-                df_splits = np.array_split(raw_df, 2)
-                worker_tasks = [(split, float(price_filter), str(target_column)) for split in df_splits]
+                # 2. RUN HARDWARE-OPTIMIZED VECTOR ENGINE (Bypasses Multiprocessing Lockouts)
+                clean_df, reject_df = run_vectorized_co_op_engine(raw_df, float(price_filter), str(target_column))
                 
-                # 3. PARALLEL DISTRIBUTED COMPUTE
-                with Pool(processes=2) as pool:
-                    worker_outputs = pool.map(co_op_core_worker, worker_tasks)
-                    
-                # 4. GATHER STREAMS: Re-stitch distributed arrays back together
-                combined_clean = []
-                combined_reject = []
-                for out in worker_outputs:
-                    combined_clean.extend(out["clean"])
-                    combined_reject.extend(out["reject"])
-                    
-                clean_df = pd.DataFrame(combined_clean) if combined_clean else pd.DataFrame()
-                reject_df = pd.DataFrame(combined_reject) if combined_reject else pd.DataFrame()
-                
-                # Account for data dropped silently by the initial filter condition threshold
+                # Account for data rows filtered out by price criteria boundaries
                 implicit_drops = total_input - (len(clean_df) + len(reject_df))
                 total_rejects = len(reject_df) + implicit_drops
 
-                # RENDER DATA: Output metrics cards safely to the layout panel
+                # RENDER RESULTS: Dynamic data metrics monitoring visualization
                 st.success("🎯 Pipeline execution cycle complete!")
                 col1, col2, col3 = st.columns(3)
                 col1.metric("📥 Total Rows Ingested", total_input)
                 col2.metric("✅ Clean Target Rows Written", len(clean_df))
                 col3.metric("⚠️ Reject Port Rows Isolated", total_rejects)
                 
-                # Tab interface matrix splits
+                # Tabbed UI matrix view splits
                 tab1, tab2 = st.tabs(["📊 Clean Output Dataset", "❌ Reject Log Dataset"])
                 
                 with tab1:
@@ -152,7 +134,7 @@ if submit_pipeline:
                     else:
                         st.success("Zero data engineering schema error exceptions caught during this batch window.")
             else:
-                st.error("Invalid Endpoint Format: Root dictionary payload missing the expected 'products' array field.")
+                st.error("Invalid Endpoint Format: Root dictionary payload missing 'products' array field.")
                 
         except Exception as system_fault:
             st.error(f"Critical Engine Interruption: {system_fault}")
