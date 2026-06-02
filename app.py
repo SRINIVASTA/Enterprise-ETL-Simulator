@@ -122,6 +122,16 @@ if submit_pipeline:
                         st.subheader("Target Table Data View")
                         st.dataframe(clean_df[['id', 'title', 'category', 'department_code', 'assigned_manager', 'price']])
                         
+                        # Data Engineering Feature: Export clean database rows
+                        clean_csv = clean_df.to_csv(index=False).encode('utf-8')
+                        st.download_button(
+                            label="📥 Download Clean Output CSV",
+                            data=clean_csv,
+                            file_name="master_clean_output.csv",
+                            mime="text/csv",
+                            key="download_clean_btn"
+                        )
+                        
                         st.subheader("Live Portfolio Manager Workload Tracking Chart")
                         st.bar_chart(clean_df['assigned_manager'].value_counts())
                     else:
@@ -131,6 +141,16 @@ if submit_pipeline:
                     if not reject_df.empty:
                         st.subheader("Reject Port Structural Audit Logs")
                         st.dataframe(reject_df)
+                        
+                        # Data Engineering Feature: Export runtime error reject log tracking metrics
+                        reject_csv = reject_df.to_csv(index=False).encode('utf-8')
+                        st.download_button(
+                            label="⚠️ Download Reject Log CSV",
+                            data=reject_csv,
+                            file_name="master_reject_errors.csv",
+                            mime="text/csv",
+                            key="download_reject_btn"
+                        )
                     else:
                         st.success("Zero data engineering schema error exceptions caught during this batch window.")
             else:
