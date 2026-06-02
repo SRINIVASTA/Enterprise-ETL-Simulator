@@ -36,12 +36,14 @@ def co_op_core_worker(args):
                 row_dict = row.to_dict()
                 current_cat = str(row_dict.get('category', '')).lower()
                 
-                # Component 1: Memory Lookup Component Join
+                # Component 1: Memory Lookup Component Join (CRASH-PROOF FIXED)
                 if current_cat in CATEGORY_LOOKUP:
                     row_dict['department_code'] = CATEGORY_LOOKUP[current_cat]['dept_code']
                     row_dict['assigned_manager'] = CATEGORY_LOOKUP[current_cat]['manager']
                 else:
-                    raise ValueError(f"Unmapped lookup category code: '{current_cat}'")
+                    # Fallback default instead of raising a ValueError crash
+                    row_dict['department_code'] = "DEPT-GENERAL-999"
+                    row_dict['assigned_manager'] = "System Unassigned"
                 
                 # Component 2: Vector Reformat String Logic
                 if target_column in row_dict and row_dict[target_column] is not None:
@@ -76,7 +78,7 @@ st.sidebar.header("📥 GDE Component Controls")
 
 with st.sidebar.form("gde_pipeline_form"):
     source_url = st.text_input("Live URL Endpoint", "https://dummyjson.com/products")
-    price_filter = st.slider("Filter: Price Greater Than (X)", 10.0, 150.0, 30.0)
+    price_filter = st.slider("Filter: Price Greater Than (X)", 10.0, 150.0, 10.0) # Changed default to 10.0
     
     # Static selector options matching explicit payload schemas
     target_column = st.selectbox(
@@ -110,7 +112,8 @@ if submit_pipeline:
                     worker_outputs = pool.map(co_op_core_worker, worker_tasks)
                     
                 # 4. GATHER STREAMS: Re-stitch distributed arrays back together
-                combined_clean, combined_reject = [], []
+                combined_clean = []
+                combined_reject = []
                 for out in worker_outputs:
                     combined_clean.extend(out["clean"])
                     combined_reject.extend(out["reject"])
