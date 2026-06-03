@@ -1,4 +1,5 @@
 # ⚡ Open-GDE & Multi-Core Pipeline Engine
+**Created by srinivasta**
 
 A high-performance, single-file Streamlit application that emulates a traditional 3-Tier Enterprise ETL Architecture. It models the core mechanics of visual pipeline design, rapid catalog reference lookups, and hardware-optimized vectorized array transformations.
 
