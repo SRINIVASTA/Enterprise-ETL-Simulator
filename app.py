@@ -75,8 +75,8 @@ st.markdown("Replicating a 3-Tier Enterprise ETL Architecture *(GDE Design UI, C
 st.sidebar.header("📥 GDE Component Controls")
 
 with st.sidebar.form("gde_pipeline_form"):
-    source_url = st.text_input("Live URL Endpoint", "https://dummyjson.com")
-    price_filter = st.slider("Filter: Price Greater Than (X)", 10.0, 150.0, 20.0)
+    source_url = st.text_input("Live URL Endpoint", "https://dummyjson.com/products")
+    price_filter = st.slider("Filter: Price Less Than (X)", 10.0, 150.0, 20.0)
     
     # Explicit mapping flags
     target_column = st.selectbox(
