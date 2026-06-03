@@ -1,84 +1,76 @@
 # ⚡ Open-GDE & Multi-Core Pipeline Engine
 
-A high-fidelity Python simulation of a 3-Tier Enterprise ETL Architecture utilizing **Streamlit** for the orchestration interface, **Pandas** for memory-layer data transformation, and structured **Error Isolation (Reject Ports)**. 
-
-This project demonstrates how enterprise data integration suites (such as Ab Initio) separate visual orchestration, data transit rules, and metadata catalogs.
+A high-performance, single-file Streamlit application that emulates a traditional 3-Tier Enterprise ETL Architecture. It models the core mechanics of visual pipeline design, rapid catalog reference lookups, and hardware-optimized vectorized array transformations.
 
 ---
 
-## 🏗️ 3-Tier Architecture Mapping
+## 🏛️ Architecture Overview
 
-The codebase is divided into three distinct operational layers:
+The application splits data processing responsibilities across three distinct functional layers:
 
-┌────────────────────────────────────────────────────────┐
-│      Layer 1: Graphical Development Environment        │
-│      (Streamlit Sidebar UI, Metrics, & Data Tabs)      │
-└───────────────────────────┬────────────────────────────┘
-                            │ Compiles Parameters
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│    Layer 2: Vectorized Co>Operating System Engine     │
-│       (Pandas Vectorized Masks + Streaming Loop)       │
-└───────────────────────────┬────────────────────────────┘
-                            │ Joins / Enriches
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│            Layer 3: EME Catalog & Lookup               │
-│        (In-Memory Static Category Dictionary)          │
-└────────────────────────────────────────────────────────┘
+### 1. Layer 1: Graphical Development Environment (GDE UI)
+* **Tech Stack**: Streamlit Dashboard Core
+* **Function**: Serves as the orchestration plane. Engineers dynamically configure system inputs, tweak sliding price thresholds, and toggle structural schema validation rules.
 
+### 2. Layer 2: Vectorized Co>Operating System Engine
+* **Tech Stack**: Pandas Array Vectorization
+* **Function**: Eliminates CPU multi-threading bottlenecks and slow Python processing loops. Uses native memory-layer array methods (`.map()`, `.str`) to filter records, execute structural reformats, and partition schema failures to error tracking targets.
 
-### 🔹 Layer 1: Open-GDE (Graphical Development Environment)
-* Implemented via **Streamlit**.
-* Serves as the developer console to inject custom extraction endpoints, price filtering thresholds, and structural reformat targets.
-* Offers real-time data governance metrics monitoring, operational tracking charts, and physical CSV export layers for automated compliance logs.
-
-### 🔹 Layer 2: Vectorized Co>Operating System Engine
-* Houses the core pipeline transformation mechanics.
-* Evaluates input records instantly against structural filters using memory-optimized operations.
-* Contains a dedicated **Reject Port Routing** architecture. If data fails schema transformation validation, the system isolates the row, logs the technical exception tracking reason, and dynamically branches it away from the clean production warehouse data targets.
-
-### 🔹 Layer 3: EME Catalog (Enterprise Metadata Exchange)
-* A high-speed memory catalog lookup matrix table.
-* Replicates centralized corporate metadata rules by automatically mapping raw categories to standardized global data definitions (`department_code`) and data owners (`assigned_manager`).
+### 3. Layer 3: EME Catalog & Lookup Files
+* **Tech Stack**: In-Memory Dictionary Registry
+* **Function**: Acts as the centralized reference store for business rules, tracking department mappings and managerial ownership metadata used during the transformation cycle.
 
 ---
 
-## 🚀 Getting Started
+## ⚙️ Core Pipeline Logic
+
+```mermaid
+graph TD
+    %% Define Node Styles
+    classDef process fill:#1f6feb,stroke:#58a6ff,stroke-width:2px,color:#ffffff;
+    classDef data fill:#21262d,stroke:#30363d,stroke-width:2px,color:#c9d1d9;
+    classDef reject fill:#da3633,stroke:#f85149,stroke-width:2px,color:#ffffff;
+
+    A([Raw Ingest Stream]):::data --> B[Vector Filter Mask]:::process
+    
+    B -->|Price Threshold Exceeded| C[Implicit Drops Log]:::data
+    B -->|Valid Price| D[Schema Target Check]:::process
+    
+    D -->|Missing Target Column| E[Reject Port Targets]:::reject
+    D -->|Schema Passed| F[Memory Catalog Join]:::process
+    
+    F --> G[Upper Case Reformat]:::process
+    G --> H([Clean Master Target]):::data
+```
+
+---
+
+## 🚀 Quick Start
 
 ### 📋 Prerequisites
-Ensure you have Python 3.8+ installed along with the required dependencies:
-```bash
-pip install streamlit pandas requests
-```
+Ensure your local Python runtime matches the requirements:
+* Python 3.8+
+* `pip` package manager
+
+### 🔧 Installation
+1. Clone or download this project folder to your local machine.
+2. Install the necessary data-engineering dependencies:
+   ```bash
+   pip install streamlit pandas requests
+   ```
 
 ### 🏃 Running the Application
-Launch the pipeline dashboard interface using your local terminal:
+Boot the visual pipeline controller directly from your terminal workspace:
 ```bash
-streamlit run your_script_name.py
+streamlit run app.py
 ```
 
 ---
 
-## 🕹️ Operational Run Scenarios
+## 🔬 Testing Structural Failures
 
-You can validate the resilience of the pipeline architecture using two predefined testing configurations inside the sidebar dashboard control panel:
-
-### Scenario A: The Clean Production Path
-1. Keep the default API target endpoint (`https://dummyjson.com`).
-2. Set the **Vector Reformat Rule Target** to `title`.
-3. Click **Compile Blueprint & Run Co>Op**.
-4. **Expected Result:** Data streams successfully. Clean records are enriched using the EME reference catalog, and an active database portfolio manager workload tracking chart is populated dynamically under the clean tab.
-
-### Scenario B: Simulated Component Schema Failure (Reject Port Audit)
-1. Navigate to the sidebar control menu.
-2. Toggle the **Vector Reformat Rule Target** dropdown to `invalid_column_trigger`.
-3. Click **Compile Blueprint & Run Co>Op**.
-4. **Expected Result:** The pipeline encounters a missing structural target key. Instead of a critical app crash, the system catches the internal software engine exceptions, safely keeps dirty rows tracked, and logs them in the **Reject Port Structural Audit Logs** tab with precise error descriptions.
-
----
-
-## 🛠️ Technology Stack
-* **UI/Orchestration:** Streamlit
-* **Data Processing:** Pandas DataFrames
-* **Ingestion Layer:** Requests (REST API Integration)
+The dashboard features built-in error routing simulations:
+1. Open the sidebar navigation menu.
+2. Locate the **Vector Reformat Rule Target** drop-down menu.
+3. Switch the active target parameter to `invalid_column_trigger`.
+4. Run the engine to see the component route 100% of rows to the **Reject Port Structural Audit Logs**.
